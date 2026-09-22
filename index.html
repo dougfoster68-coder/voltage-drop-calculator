@@ -1,0 +1,675 @@
+<title>Heater Circuit Voltage Drop</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#F3F4F6;
+    --panel:#FFFFFF;
+    --panel-2:#F8F9FA;
+    --ink:#1B2430;
+    --ink-dim:#5B6472;
+    --ink-faint:#8993A1;
+    --border:#DDE1E6;
+    --accent:#B5651D;
+    --accent-ink:#FFFFFF;
+    --accent-2:#5B6C7C;
+    --good:#1E7A46;
+    --good-bg:#E4F3EA;
+    --warn:#A6690F;
+    --warn-bg:#FBF0DA;
+    --bad:#B23A24;
+    --bad-bg:#FBE6E1;
+    --track:#E7E9EC;
+    --shadow: 0 1px 2px rgba(20,25,32,.04), 0 8px 24px -12px rgba(20,25,32,.18);
+    --badge-opacity:.07;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#14181D;
+      --panel:#1B2027;
+      --panel-2:#20262E;
+      --ink:#E7EAEE;
+      --ink-dim:#9AA3AF;
+      --ink-faint:#6C7480;
+      --border:#2C333C;
+      --accent:#D98A44;
+      --accent-ink:#1B140D;
+      --accent-2:#98A6B4;
+      --good:#4FB57F;
+      --good-bg:rgba(79,181,127,.14);
+      --warn:#E0A83E;
+      --warn-bg:rgba(224,168,62,.14);
+      --bad:#E2695A;
+      --bad-bg:rgba(226,105,90,.14);
+      --track:#262C34;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+      --badge-opacity:.14;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#14181D;
+    --panel:#1B2027;
+    --panel-2:#20262E;
+    --ink:#E7EAEE;
+    --ink-dim:#9AA3AF;
+    --ink-faint:#6C7480;
+    --border:#2C333C;
+    --accent:#D98A44;
+    --accent-ink:#1B140D;
+    --accent-2:#98A6B4;
+    --good:#4FB57F;
+    --good-bg:rgba(79,181,127,.14);
+    --warn:#E0A83E;
+    --warn-bg:rgba(224,168,62,.14);
+    --bad:#E2695A;
+    --bad-bg:rgba(226,105,90,.14);
+    --track:#262C34;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+    --badge-opacity:.14;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;
+    padding-inline:16px;
+    padding-block:28px 40px;
+    position:relative;
+  }
+  .bg-badge{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    background-image:url('ibew176-logo.png');
+    background-repeat:no-repeat;
+    background-position:center 42%;
+    background-size:min(100vw,900px);
+    opacity:var(--badge-opacity);
+  }
+  .wrap{max-width:1040px;margin:0 auto;position:relative;z-index:1}
+
+  .brand-row{display:flex;align-items:center;gap:9px}
+  .brand-logo{width:30px;height:30px;border-radius:50%;flex:none}
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:11.5px;
+    letter-spacing:.11em;
+    text-transform:uppercase;
+    color:var(--accent);
+    font-weight:600;
+  }
+  h1{
+    font-family:"Archivo",sans-serif;
+    font-weight:800;
+    font-size:clamp(26px,4vw,34px);
+    letter-spacing:-.01em;
+    margin:6px 0 4px;
+    text-wrap:balance;
+  }
+  .sub{color:var(--ink-dim);font-size:14.5px;max-width:62ch;line-height:1.5;margin-bottom:26px}
+  .sub b{color:var(--ink);font-weight:600}
+
+  .grid{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);
+    gap:18px;
+    align-items:start;
+  }
+  @media (max-width:760px){ .grid{grid-template-columns:1fr} }
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    padding:20px 20px 22px;
+  }
+  .card h2{
+    font-family:"Archivo",sans-serif;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+    margin:0 0 16px;
+  }
+
+  .field{margin-bottom:16px}
+  .field label{
+    display:block;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink-dim);
+    margin-bottom:6px;
+  }
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  select,input[type=number]{
+    width:100%;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--ink);
+    border-radius:9px;
+    padding:9px 11px;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:14px;
+    font-variant-numeric:tabular-nums;
+  }
+  select:focus,input:focus{outline:2px solid var(--accent);outline-offset:1px}
+  .unit-input{position:relative}
+  .unit-input input{padding-right:44px}
+  .unit-input span{
+    position:absolute;right:11px;top:50%;transform:translateY(-50%);
+    font-size:12px;color:var(--ink-faint);font-family:"IBM Plex Mono",monospace;
+    pointer-events:none;
+  }
+
+  .seg{
+    display:flex;
+    border:1px solid var(--border);
+    border-radius:9px;
+    overflow:hidden;
+    background:var(--panel-2);
+  }
+  .seg button{
+    flex:1;
+    appearance:none;border:0;background:transparent;
+    color:var(--ink-dim);
+    font-family:"IBM Plex Sans",sans-serif;
+    font-size:13px;font-weight:600;
+    padding:9px 8px;cursor:pointer;
+  }
+  .seg button.active{background:var(--accent);color:var(--accent-ink)}
+  .seg button:not(.active):hover{color:var(--ink)}
+
+  .hint{font-size:11.5px;color:var(--ink-faint);margin-top:6px;line-height:1.4}
+
+  /* results */
+  .status-pill{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:12px;font-weight:600;letter-spacing:.04em;
+    padding:5px 11px;border-radius:999px;
+    text-transform:uppercase;
+  }
+  .status-pill.good{background:var(--good-bg);color:var(--good)}
+  .status-pill.warn{background:var(--warn-bg);color:var(--warn)}
+  .status-pill.bad{background:var(--bad-bg);color:var(--bad)}
+  .status-pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+
+  .headline{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+  .vd-big{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:clamp(40px,7vw,56px);
+    font-weight:600;
+    line-height:1;
+    font-variant-numeric:tabular-nums;
+  }
+  .vd-big span{font-size:.42em;color:var(--ink-faint);font-weight:500;margin-left:2px}
+  .vd-caption{font-size:12.5px;color:var(--ink-dim);margin-bottom:10px}
+  .quip{
+    display:flex;align-items:flex-start;gap:9px;
+    font-size:16px;font-style:italic;color:var(--ink-dim);
+    background:var(--panel-2);border:1px solid var(--border);
+    border-radius:10px;padding:12px 14px;margin-bottom:18px;
+    line-height:1.45;
+  }
+  .quip .tag{
+    font-family:"IBM Plex Mono",monospace;font-style:normal;font-weight:600;
+    font-size:11px;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--accent);flex:none;margin-top:3px;
+  }
+
+  .gauge{margin:6px 0 22px}
+  .gauge-track{
+    position:relative;height:14px;border-radius:7px;overflow:hidden;
+    background:var(--track);
+    display:flex;
+  }
+  .gauge-zone{height:100%}
+  .gauge-fill{
+    position:absolute;left:0;top:0;height:100%;
+    background:var(--ink);
+    opacity:.16;
+    border-radius:7px;
+    transition:width .15s ease;
+  }
+  .gauge-marker{
+    position:absolute;top:-4px;bottom:-4px;width:2px;
+    background:var(--ink-faint);
+  }
+  .gauge-pointer{
+    position:absolute;top:-5px;width:3px;height:24px;border-radius:2px;
+    background:var(--ink);
+    box-shadow:0 0 0 2px var(--panel);
+    transition:left .15s ease;
+  }
+  .gauge-scale{display:flex;justify-content:space-between;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-faint);margin-top:6px}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
+  .stat{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:11px 13px;
+  }
+  .stat .k{font-size:11px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+  .stat .v{font-family:"IBM Plex Mono",monospace;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+  .stat .v small{font-size:11px;font-weight:500;color:var(--ink-faint);margin-left:2px}
+
+  .suggest{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    background:var(--panel-2);
+    border:1px dashed var(--border);
+    border-radius:10px;
+    padding:10px 13px;
+    font-size:12.5px;color:var(--ink-dim);
+  }
+  .suggest button{
+    appearance:none;border:1px solid var(--accent);
+    background:transparent;color:var(--accent);
+    font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;
+    padding:4px 10px;border-radius:7px;cursor:pointer;
+  }
+  .suggest button:hover{background:var(--accent);color:var(--accent-ink)}
+
+  /* table */
+  .table-card{margin-top:18px}
+  .tbl-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:12.5px}
+  th,td{text-align:right;padding:7px 10px;white-space:nowrap;font-variant-numeric:tabular-nums}
+  th:first-child,td:first-child{text-align:left}
+  thead th{
+    color:var(--ink-faint);font-weight:600;font-size:11px;
+    text-transform:uppercase;letter-spacing:.04em;
+    border-bottom:1px solid var(--border);
+  }
+  tbody tr{border-bottom:1px solid var(--border)}
+  tbody tr:last-child{border-bottom:0}
+  tbody tr.selected{background:var(--good-bg)}
+  tbody tr.selected td:first-child{color:var(--good);font-weight:700}
+  tbody td:first-child{color:var(--ink);font-weight:600}
+  tbody td{color:var(--ink-dim)}
+  tbody tr.dim td{opacity:.55}
+
+  .foot{
+    margin-top:16px;font-size:11.5px;line-height:1.6;color:var(--ink-faint);
+    max-width:78ch;
+  }
+</style>
+
+<div class="bg-badge" aria-hidden="true"></div>
+<div class="wrap">
+  <div class="brand-row">
+    <img class="brand-logo" src="ibew176-logo.png" alt="IBEW Local 176 crest">
+    <div class="eyebrow">Branch &amp; Feeder Sizing &middot; 208Y/120V Panel</div>
+  </div>
+  <h1>Heater Circuit Voltage Drop</h1>
+  <p class="sub">Sizes conductors for <b>resistive heater loads</b> — duct heaters, unit heaters, baseboard banks — fed from a 208Y/120V panel, using DC conductor resistance from NEC Chapter&nbsp;9, Table&nbsp;8.</p>
+
+  <div class="grid">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Circuit</h2>
+
+      <div class="field">
+        <label for="circuitType">Supply</label>
+        <select id="circuitType">
+          <option value="120-1">120 V, 1&phi; (Line&ndash;Neutral)</option>
+          <option value="208-1">208 V, 1&phi; (Line&ndash;Line)</option>
+          <option value="208-3" selected>208 V, 3&phi;</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Load input</label>
+        <div class="seg" id="loadModeSeg">
+          <button type="button" data-mode="kw" class="active">By kW</button>
+          <button type="button" data-mode="amps">By Amps</button>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field" id="kwField">
+          <label for="kwInput">Heater load</label>
+          <div class="unit-input"><input id="kwInput" type="number" min="0" step="0.1" value="24"><span>kW</span></div>
+        </div>
+        <div class="field" id="pfField">
+          <label for="pfInput">Power factor</label>
+          <input id="pfInput" type="number" min="0.1" max="1" step="0.01" value="1.00">
+        </div>
+      </div>
+
+      <div class="field" id="ampsField" style="display:none">
+        <label for="ampsInput">Load current</label>
+        <div class="unit-input"><input id="ampsInput" type="number" min="0" step="0.1" value="66.6"><span>A</span></div>
+      </div>
+
+      <h2 style="margin-top:22px">Conductor</h2>
+
+      <div class="field">
+        <label>Material</label>
+        <div class="seg" id="materialSeg">
+          <button type="button" data-mat="cu" class="active">Copper</button>
+          <button type="button" data-mat="al">Aluminum</button>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="sizeSelect">Conductor size</label>
+          <select id="sizeSelect"></select>
+        </div>
+        <div class="field">
+          <label for="setsInput">Sets in parallel</label>
+          <input id="setsInput" type="number" min="1" max="8" step="1" value="1">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="distInput">One-way distance</label>
+        <div class="unit-input"><input id="distInput" type="number" min="0" step="1" value="150"><span>ft</span></div>
+      </div>
+
+      <div class="field">
+        <label>Recommended limit (NEC 210.19(A) Informational Note)</label>
+        <div class="seg" id="limitSeg">
+          <button type="button" data-limit="3" class="active">Branch, 3%</button>
+          <button type="button" data-limit="5">Feeder+branch, 5%</button>
+        </div>
+      </div>
+      <div class="hint">Voltage drop is a design recommendation, not an NEC requirement, unless adopted by the authority having jurisdiction.</div>
+    </div>
+
+    <!-- RESULTS CARD -->
+    <div class="card">
+      <h2>Result</h2>
+
+      <div class="headline">
+        <div class="vd-big" id="vdPct">&mdash;<span>%</span></div>
+        <span class="status-pill good" id="statusPill">Pass</span>
+      </div>
+      <div class="vd-caption" id="vdCaption">Voltage drop across the one-way run at full load.</div>
+      <div class="quip"><span class="tag">Field note</span><span id="quipText">&mdash;</span></div>
+
+      <div class="gauge">
+        <div class="gauge-track">
+          <div class="gauge-fill" id="gaugeFill"></div>
+          <div class="gauge-marker" id="gaugeMarker"></div>
+          <div class="gauge-pointer" id="gaugePointer"></div>
+        </div>
+        <div class="gauge-scale" id="gaugeScale"></div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat"><div class="k">Load current</div><div class="v" id="statAmps">&mdash;<small>A</small></div></div>
+        <div class="stat"><div class="k">Voltage drop</div><div class="v" id="statVolts">&mdash;<small>V</small></div></div>
+        <div class="stat"><div class="k">Voltage at load</div><div class="v" id="statLoadV">&mdash;<small>V</small></div></div>
+        <div class="stat"><div class="k">Conductor R</div><div class="v" id="statR">&mdash;<small>&Omega;/kft</small></div></div>
+      </div>
+
+      <div class="suggest" id="suggestBox">
+        <span id="suggestText">Calculating minimum size&hellip;</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card table-card">
+    <h2>NEC Chapter 9, Table 8 &mdash; DC Resistance Reference (uncoated, 75&deg;C)</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Size</th><th>Copper &Omega;/kft</th><th>Aluminum &Omega;/kft</th><th>This circuit, %VD</th></tr>
+        </thead>
+        <tbody id="tblBody"></tbody>
+      </table>
+    </div>
+    <div class="foot">
+      Formula used: single-phase runs use <b>VD = 2 &times; I &times; R &times; D&nbsp;/&nbsp;1000</b>; three-phase runs use <b>VD = &radic;3 &times; I &times; R &times; D&nbsp;/&nbsp;1000</b>, where R is per-conductor resistance divided by the number of parallel sets, D is one-way distance in feet, and I is load current in amps. Resistance values are DC, uncoated conductor figures from NEC Chapter 9, Table 8 &mdash; adequate for resistive heater loads at unity power factor, where conductor reactance is negligible. For loads with power factor below roughly 0.9, use NEC Table 9 effective impedance instead.
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var SIZES = [
+    {l:"14 AWG",  cu:3.14,  al:5.17},
+    {l:"12 AWG",  cu:1.98,  al:3.25},
+    {l:"10 AWG",  cu:1.24,  al:2.04},
+    {l:"8 AWG",   cu:0.778, al:1.28},
+    {l:"6 AWG",   cu:0.491, al:0.808},
+    {l:"4 AWG",   cu:0.308, al:0.508},
+    {l:"3 AWG",   cu:0.245, al:0.403},
+    {l:"2 AWG",   cu:0.194, al:0.319},
+    {l:"1 AWG",   cu:0.154, al:0.253},
+    {l:"1/0 AWG", cu:0.1224,al:0.201},
+    {l:"2/0 AWG", cu:0.0967,al:0.159},
+    {l:"3/0 AWG", cu:0.0766,al:0.126},
+    {l:"4/0 AWG", cu:0.0608,al:0.100},
+    {l:"250 kcmil",cu:0.0515,al:0.0847},
+    {l:"300 kcmil",cu:0.0429,al:0.0707},
+    {l:"350 kcmil",cu:0.0367,al:0.0605},
+    {l:"400 kcmil",cu:0.0321,al:0.0529},
+    {l:"500 kcmil",cu:0.0258,al:0.0424}
+  ];
+
+  var els = {
+    circuitType: document.getElementById('circuitType'),
+    kwField: document.getElementById('kwField'),
+    ampsField: document.getElementById('ampsField'),
+    pfField: document.getElementById('pfField'),
+    kwInput: document.getElementById('kwInput'),
+    pfInput: document.getElementById('pfInput'),
+    ampsInput: document.getElementById('ampsInput'),
+    sizeSelect: document.getElementById('sizeSelect'),
+    setsInput: document.getElementById('setsInput'),
+    distInput: document.getElementById('distInput'),
+    tblBody: document.getElementById('tblBody'),
+    vdPct: document.getElementById('vdPct'),
+    vdCaption: document.getElementById('vdCaption'),
+    quipText: document.getElementById('quipText'),
+    statusPill: document.getElementById('statusPill'),
+    statAmps: document.getElementById('statAmps'),
+    statVolts: document.getElementById('statVolts'),
+    statLoadV: document.getElementById('statLoadV'),
+    statR: document.getElementById('statR'),
+    gaugeFill: document.getElementById('gaugeFill'),
+    gaugeMarker: document.getElementById('gaugeMarker'),
+    gaugePointer: document.getElementById('gaugePointer'),
+    gaugeScale: document.getElementById('gaugeScale'),
+    suggestText: document.getElementById('suggestText')
+  };
+
+  var state = { loadMode:'kw', material:'cu', limit:3, lastStatus:null };
+
+  var QUIPS = {
+    good: [
+      "Copper's happy, breaker's happy, nobody's getting a strongly worded email from the GC.",
+      "Tight enough that even the inspector might crack a smile. Might.",
+      "That heater will hum along like it means it.",
+      "Ohm sweet ohm.",
+      "Runs cooler than the job site coffee.",
+      "Somewhere a load calc just breathed a sigh of relief."
+    ],
+    warn: [
+      "Technically passing, like a pop quiz you guessed your way through.",
+      "It'll work. So does duct tape, for a while.",
+      "Right on the line — bring a jacket, it's gonna be a long inspection.",
+      "The multimeter and your conscience are both a little uneasy.",
+      "Passable. Barely. Like parallel parking on the first try.",
+      "Close enough for government work — emphasis on the risk."
+    ],
+    bad: [
+      "That's not a voltage drop, that's a voltage cliff.",
+      "Somewhere, a heating element is filing a formal complaint.",
+      "Congratulations — you've invented a very expensive space heater for the wire itself.",
+      "The panel schedule is judging you right now.",
+      "Time to break out the bigger spool.",
+      "That run is dropping more volts than the crew drops F-bombs on a Monday."
+    ]
+  };
+
+  var HALL_TALK = [
+    "I prefer my cucumbers pickled.",
+    "Dan wasn't ready.",
+    "Scott Smith retired.",
+    "Nick ain't got no neck.",
+    "It's a double edged sword.",
+    "It's a slippery slope.",
+    "We've got to be careful with that one.",
+    "Believe me brother, we are trying."
+  ];
+
+  function rollQuip(status){
+    var pool = (QUIPS[status] || QUIPS.good).concat(HALL_TALK);
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function populateSizes(){
+    els.sizeSelect.innerHTML = SIZES.map(function(s,i){
+      return '<option value="'+i+'">'+s.l+'</option>';
+    }).join('');
+    els.sizeSelect.value = 5; // 4 AWG default
+  }
+
+  function wireSeg(id, dataAttr, key, cb){
+    var seg = document.getElementById(id);
+    seg.addEventListener('click', function(e){
+      var btn = e.target.closest('button');
+      if(!btn) return;
+      Array.prototype.forEach.call(seg.children, function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      state[key] = btn.getAttribute(dataAttr);
+      cb && cb();
+      recalc();
+    });
+  }
+
+  function supplyVolts(ct){ return ct === '120-1' ? 120 : 208; }
+  function isThreePhase(ct){ return ct === '208-3'; }
+
+  function currentFromInputs(){
+    if(state.loadMode === 'amps'){
+      return parseFloat(els.ampsInput.value) || 0;
+    }
+    var ct = els.circuitType.value;
+    var V = supplyVolts(ct);
+    var P = (parseFloat(els.kwInput.value) || 0) * 1000;
+    var pf = Math.max(0.01, Math.min(1, parseFloat(els.pfInput.value) || 1));
+    if(isThreePhase(ct)) return P / (Math.sqrt(3) * V * pf);
+    return P / (V * pf);
+  }
+
+  function vdFor(R, I, D, sets, threePhase){
+    var Reff = R / Math.max(1, sets);
+    var mult = threePhase ? Math.sqrt(3) : 2;
+    return mult * I * Reff * D / 1000;
+  }
+
+  function fmt(n, d){ return isFinite(n) ? n.toFixed(d) : '—'; }
+
+  function recalc(){
+    var ct = els.circuitType.value;
+    var V = supplyVolts(ct);
+    var threePhase = isThreePhase(ct);
+    var I = currentFromInputs();
+    var D = parseFloat(els.distInput.value) || 0;
+    var sets = Math.max(1, parseInt(els.setsInput.value) || 1);
+    var idx = parseInt(els.sizeSelect.value);
+    var size = SIZES[idx];
+    var R = state.material === 'cu' ? size.cu : size.al;
+
+    var vd = vdFor(R, I, D, sets, threePhase);
+    var pct = V > 0 ? (vd / V) * 100 : 0;
+    var limit = state.limit;
+
+    els.vdPct.innerHTML = fmt(pct,2) + '<span>%</span>';
+    els.statAmps.innerHTML = fmt(I,1) + '<small>A</small>';
+    els.statVolts.innerHTML = fmt(vd,2) + '<small>V</small>';
+    els.statLoadV.innerHTML = fmt(V - vd,1) + '<small>V</small>';
+    els.statR.innerHTML = fmt(R/Math.max(1,sets),4) + '<small>&Omega;/kft</small>';
+    els.vdCaption.textContent = threePhase
+      ? '3φ run — √3 × I × R × D / 1000, ' + D + ' ft one-way.'
+      : '1φ run — 2 × I × R × D / 1000, ' + D + ' ft one-way.';
+
+    var status = pct <= limit*0.9 ? 'good' : (pct <= limit ? 'warn' : 'bad');
+    var label = status === 'good' ? 'Pass' : (status === 'warn' ? 'Marginal' : 'Exceeds limit');
+    els.statusPill.className = 'status-pill ' + status;
+    els.statusPill.textContent = label;
+
+    if(status !== state.lastStatus){
+      els.quipText.textContent = rollQuip(status);
+      state.lastStatus = status;
+    }
+
+    // gauge
+    var scaleMax = Math.max(8, limit * 1.6, pct * 1.15);
+    var markerPct = (limit/scaleMax)*100;
+    var pointerPct = Math.min(100, (pct/scaleMax)*100);
+    els.gaugeFill.style.width = pointerPct + '%';
+    els.gaugeFill.style.background = status==='good' ? 'var(--good)' : status==='warn' ? 'var(--warn)' : 'var(--bad)';
+    els.gaugeFill.style.opacity = 1;
+    els.gaugeMarker.style.left = markerPct + '%';
+    els.gaugePointer.style.left = 'calc(' + pointerPct + '% - 1.5px)';
+    els.gaugeScale.innerHTML = ['0','','','',(limit)+'% limit','','',''].map(function(t,i){
+      var pos = (i/7)*scaleMax;
+      return '<span>'+ (i===0? '0' : (i===4? limit+'%' : pos.toFixed(0)+'%')) +'</span>';
+    }).join('');
+
+    // table
+    els.tblBody.innerHTML = SIZES.map(function(s, i){
+      var rowVd = vdFor(state.material==='cu'?s.cu:s.al, I, D, sets, threePhase);
+      var rowPct = V>0 ? (rowVd/V)*100 : 0;
+      var sel = i === idx;
+      var meets = rowPct <= limit;
+      return '<tr class="'+(sel?'selected':'')+'">'+
+        '<td>'+s.l+'</td>'+
+        '<td class="'+(state.material==='cu'?'':'dim')+'">'+s.cu.toFixed(4)+'</td>'+
+        '<td class="'+(state.material==='al'?'':'dim')+'">'+s.al.toFixed(4)+'</td>'+
+        '<td style="color:'+(meets?'var(--good)':'var(--bad)')+'">'+rowPct.toFixed(2)+'%</td>'+
+        '</tr>';
+    }).join('');
+
+    // suggestion
+    var minIdx = -1;
+    for(var i=0;i<SIZES.length;i++){
+      var rv = vdFor(state.material==='cu'?SIZES[i].cu:SIZES[i].al, I, D, sets, threePhase);
+      var rp = V>0 ? (rv/V)*100 : 0;
+      if(rp <= limit){ minIdx = i; break; }
+    }
+    if(minIdx === -1){
+      els.suggestText.innerHTML = 'No size up to 500 kcmil (single set) meets the ' + limit + '% limit at this distance — add parallel sets or shorten the run.';
+    } else if(minIdx === idx){
+      els.suggestText.innerHTML = 'Selected size is the smallest ' + (state.material==='cu'?'copper':'aluminum') + ' conductor meeting the ' + limit + '% limit.';
+    } else {
+      els.suggestText.innerHTML = 'Smallest size meeting ' + limit + '%: <b style="color:var(--ink)">' + SIZES[minIdx].l + '</b>' +
+        ' &mdash; <button type="button" id="applyMin">Use ' + SIZES[minIdx].l + '</button>';
+      var btn = document.getElementById('applyMin');
+      if(btn){ btn.addEventListener('click', function(){ els.sizeSelect.value = minIdx; recalc(); }); }
+    }
+  }
+
+  // load mode toggle
+  document.getElementById('loadModeSeg').addEventListener('click', function(e){
+    var btn = e.target.closest('button'); if(!btn) return;
+    Array.prototype.forEach.call(this.children, function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    state.loadMode = btn.getAttribute('data-mode');
+    var isKw = state.loadMode === 'kw';
+    els.kwField.style.display = isKw ? '' : 'none';
+    els.pfField.style.display = isKw ? '' : 'none';
+    els.ampsField.style.display = isKw ? 'none' : '';
+    recalc();
+  });
+
+  wireSeg('materialSeg','data-mat','material');
+  wireSeg('limitSeg','data-limit','limit');
+
+  [els.circuitType, els.kwInput, els.pfInput, els.ampsInput, els.sizeSelect, els.setsInput, els.distInput]
+    .forEach(function(el){ el.addEventListener('input', recalc); el.addEventListener('change', recalc); });
+
+  populateSizes();
+  recalc();
+})();
+</script>
