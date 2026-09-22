@@ -303,10 +303,10 @@
 <div class="wrap">
   <div class="brand-row">
     <img class="brand-logo" src="ibew176-logo.png" alt="IBEW Local 176 crest">
-    <div class="eyebrow">Branch &amp; Feeder Sizing &middot; 208Y/120V Panel</div>
+    <div class="eyebrow">Branch &amp; Feeder Sizing &middot; 208Y/120V &amp; 480Y/277V Panels</div>
   </div>
   <h1>Heater Circuit Voltage Drop</h1>
-  <p class="sub">Sizes conductors for <b>resistive heater loads</b> — duct heaters, unit heaters, baseboard banks — fed from a 208Y/120V panel, using DC conductor resistance from NEC Chapter&nbsp;9, Table&nbsp;8.</p>
+  <p class="sub">Sizes conductors for <b>resistive heater loads</b> — duct heaters, unit heaters, baseboard banks — fed from a 208Y/120V or 480Y/277V panel, using DC conductor resistance from NEC Chapter&nbsp;9, Table&nbsp;8.</p>
 
   <div class="grid">
     <!-- INPUT CARD -->
@@ -319,6 +319,9 @@
           <option value="120-1">120 V, 1&phi; (Line&ndash;Neutral)</option>
           <option value="208-1">208 V, 1&phi; (Line&ndash;Line)</option>
           <option value="208-3" selected>208 V, 3&phi;</option>
+          <option value="277-1">277 V, 1&phi; (Line&ndash;Neutral)</option>
+          <option value="480-1">480 V, 1&phi; (Line&ndash;Line)</option>
+          <option value="480-3">480 V, 3&phi;</option>
         </select>
       </div>
 
@@ -546,8 +549,8 @@
     });
   }
 
-  function supplyVolts(ct){ return ct === '120-1' ? 120 : 208; }
-  function isThreePhase(ct){ return ct === '208-3'; }
+  function supplyVolts(ct){ return parseInt(ct.split('-')[0], 10); }
+  function isThreePhase(ct){ return ct.split('-')[1] === '3'; }
 
   function currentFromInputs(){
     if(state.loadMode === 'amps'){
